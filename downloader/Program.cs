@@ -15,7 +15,7 @@ namespace downloader
 				{
 					for (int i = 0; i < args.Length; i++)
 					{
-						Console.WriteLine("downloading " + args[i] + ". . . ");
+						Console.Write("downloading " + args[i] + ". . . ");
 						Downloader(args[i], Path.GetFileName(args[i])).Dispose();
 						Console.WriteLine("downloaded.");
 					}
