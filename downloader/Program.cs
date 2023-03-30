@@ -13,23 +13,11 @@ namespace downloader
 			{
 				if (args.Length != 0)
 				{
-					if (args[0] == "-p" || args[0] == "--path")
+					for (int i = 0; i < args.Length; i++)
 					{
-						for (int i = 2; i < args.Length; i++)
-						{
-							Console.WriteLine($"downloading {args[i]} into folder \"{args[1]}\". . . ");
-							using (var wc = Downloader(args[i], Path.GetFileName(args[i]), args[1])) wc.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadInfo);
-							Console.WriteLine("downloaded.");
-						}
-					}
-					else
-					{
-						for (int i = 0; i < args.Length; i++)
-						{
-							Console.WriteLine("downloading " + args[i] + ". . . ");
-							using (var wc = Downloader(args[i], Path.GetFileName(args[i]))) wc.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadInfo);
-							Console.WriteLine("downloaded.");
-						}
+						Console.WriteLine("downloading " + args[i] + ". . . ");
+						Downloader(args[i], Path.GetFileName(args[i])).Dispose();
+						Console.WriteLine("downloaded.");
 					}
 				}
 				else
