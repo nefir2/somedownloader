@@ -7,40 +7,58 @@ namespace downloader
 {
 	internal class Program
 	{
-		static void Main(string[] args)
+		[STAThread] static void Main(string[] args)
 		{
 			try
 			{
 				if (args.Length != 0)
 				{
-					for (int i = 0; i < args.Length; i++)
+					if (args[0] == "-p" || args[0] == "--path")
 					{
-						Console.WriteLine("downloading " + args[i] + ". . . ");
-						Downloader(args[i], Path.GetFileName(args[i])).Dispose();
-						Console.WriteLine("downloaded.");
+						for (int i = 2; i < args.Length; i++)
+						{
+							Console.WriteLine($"downloading {args[i]} into folder \"{args[1]}\". . . ");
+							using (var wc = Downloader(args[i], Path.GetFileName(args[i]), args[1])) wc.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadInfo);
+							Console.WriteLine("downloaded.");
+						}
+					}
+					else
+					{
+						for (int i = 0; i < args.Length; i++)
+						{
+							Console.WriteLine("downloading " + args[i] + ". . . ");
+							using (var wc = Downloader(args[i], Path.GetFileName(args[i]))) wc.DownloadProgressChanged += new DownloadProgressChangedEventHandler(DownloadInfo);
+							Console.WriteLine("downloaded.");
+						}
 					}
 				}
 				else
 				{
-					Console.Write("choose what i should download: ");
-					string uri = Console.ReadLine();
-					Downloader(uri, Path.GetFileName(uri)).Dispose();
-					Console.WriteLine("Downloaded.");
+					Console.WriteLine("usage: downloader.exe [-p/--path PATH] URI...\n");
+					Console.WriteLine("downloading file (or files) from URIs to desktop. if \"-p\" or \"--path\" and path is written, then file will be installed, into PATH folder.");
 				}
 			}
 			catch (Exception ex) { Console.WriteLine("eRrOr!!\n" + ex.Message); }
-			Process.Start(".");
 		}
-		public static WebClient Downloader(string uri, string filename)
+		public static WebClient Downloader(string uri, string filename) => Downloader(uri, filename, Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+		public static WebClient Downloader(string uri, string filename, string path)
 		{
 			try
 			{
 				WebClient x = new WebClient();
-				x.DownloadFile(uri, filename);
+				Uri uried = new Uri(uri);
+				//uried.
+				x.DownloadFileAsync(uried, path + "\\" + filename);
 				return x;
 			}
 			catch (Exception ex) { Console.WriteLine(ex.Message); }
 			return null;
+		}
+		public static void DownloadInfo(object sender, DownloadProgressChangedEventArgs e)
+		{
+			Console.WriteLine("downloaded: " + e.ProgressPercentage + "%");
+			for (int j = 0; j < 10; j++) Console.Write(j <= e.ProgressPercentage / 10 ? "#" : "_");
+			Console.SetCursorPosition(0, Console.CursorTop - 1);
 		}
 	}
 }
